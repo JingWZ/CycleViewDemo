@@ -9,5 +9,5 @@ Draw the cycle view by Core Animation and Quartz2D (gradient)
 2. ellipse 
 
 
-![image](http://t1.qpic.cn/mblogpic/12a80f03a14e007cf11a/460.jpg)
+![image](http://t1.qpic.cn/mblogpic/1bdcce4c3384f5244ca8/460.jpg)
 
