@@ -13,6 +13,16 @@
 {
     CGFloat viewWidth;
     CGFloat viewHeight;
+    
+    CGFloat r1;
+    CGFloat g1;
+    CGFloat b1;
+    CGFloat a1;
+
+    CGFloat singleR;
+    CGFloat singleG;
+    CGFloat singleB;
+    CGFloat singleA;
 }
 
 @end
@@ -44,6 +54,8 @@
     viewWidth = self.bounds.size.width;
     viewHeight = self.bounds.size.height;
 }
+
+#pragma mark - override setter/getter
 
 - (void)setCircleLength:(CGFloat)circleLength
 {
@@ -82,6 +94,33 @@
     [self setNeedsDisplay];
 }
 
+- (void)setStartColor:(UIColor *)startColor
+{
+    _startColor = startColor;
+    [self calculateRGBA];
+    [self setNeedsDisplay];
+}
+
+- (void)setEndColor:(UIColor *)endColor
+{
+    _endColor = endColor;
+    [self calculateRGBA];
+    [self setNeedsDisplay];
+}
+
+- (void)calculateRGBA {
+    
+    [_startColor getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
+    
+    CGFloat r2 = 0; CGFloat g2 = 0; CGFloat b2 = 0; CGFloat a2 = 0;
+    [_endColor getRed:&r2 green:&g2 blue:&b2 alpha:&a2];
+    
+    singleR = (r2 - r1) / _smooth;
+    singleG = (g2 - g1) / _smooth;
+    singleB = (b2 - b1) / _smooth;
+    singleA = (a2 - a1) / _smooth;
+}
+
 #pragma mark - draw
 
 - (void)drawRect:(CGRect)rect
@@ -95,11 +134,13 @@
         [self drawArcWithStartAngle:0 endAngle:M_PI * 2 * _circleLength round:self.round inContext:context];
         CGContextClip(context);
         
+        //gradient
         CFArrayRef colorArray = CFArrayCreate(kCFAllocatorDefault, (const void*[]){[_startColor CGColor], [_endColor CGColor]}, 2, NULL);
         CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
         CGGradientRef gradient = CGGradientCreateWithColors(colorSpace, colorArray, NULL);
         CGContextDrawLinearGradient(context, gradient, CGPointMake(viewWidth - _offset, viewHeight / 2.0), CGPointMake(_offset, viewHeight / 2.0), 0);
         
+        //release
         CFRelease(colorArray);
         CGColorSpaceRelease(colorSpace);
         CGGradientRelease(gradient);
@@ -108,18 +149,7 @@
     else
     {
         CGFloat singleAngle = M_PI * 2 * _circleLength / _smooth;
-        
-        CGFloat r1 = 0; CGFloat g1 = 0; CGFloat b1 = 0; CGFloat a1 = 0;
-        [_startColor getRed:&r1 green:&g1 blue:&b1 alpha:&a1];
-        
-        CGFloat r2 = 0; CGFloat g2 = 0; CGFloat b2 = 0; CGFloat a2 = 0;
-        [_endColor getRed:&r2 green:&g2 blue:&b2 alpha:&a2];
-        
-        CGFloat singleR = (r2 - r1) / _smooth;
-        CGFloat singleG = (g2 - g1) / _smooth;
-        CGFloat singleB = (b2 - b1) / _smooth;
-        CGFloat singleA = (a2 - a1) / _smooth;
-        
+                
         //custom gradient
         for (int i = 0; i < _smooth; i++)
         {
